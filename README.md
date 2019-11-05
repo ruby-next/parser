@@ -1,5 +1,24 @@
 # Parser
 
+**NOTE:** This is a custom build of a [`parser` gem](https://github.com/whitequark/parser) containing edge features not-yet-released or even merged into `master`.
+
+You can install it from GitHub Package Registry:
+
+- Configure Bundler for downloading packages from GitHub (see the [Package Registry docs](https://help.github.com/en/github/managing-packages-with-github-package-registry/configuring-rubygems-for-use-with-github-package-registry#authenticating-to-github-package-registry)) 
+- Install gem globally:
+
+```sh
+gem install parser -v 2.6.3.105 --source "https://<username>:<token>@rubygems.pkg.github.com/ruby-next"
+```
+
+- Or add to your Gemfile:
+
+```sh
+source "https://rubygems.pkg.github.com/ruby-next" do
+  gem "parser"
+end
+```
+
 [![Gem Version](https://badge.fury.io/rb/parser.svg)](https://badge.fury.io/rb/parser)
 [![Tests](https://github.com/whitequark/parser/workflows/Tests/badge.svg?branch=master)](https://github.com/whitequark/parser/actions?query=workflow%3ATests+branch%3Amaster)
 
