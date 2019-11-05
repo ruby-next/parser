@@ -1,0 +1,25 @@
+version: '4'
+
+compose:
+  files:
+    - .dockerdev/docker-compose.yml
+  project_name: parser-ruby-next
+
+interaction:
+  bash:
+    description: Open a Bash shell in app's container
+    service: app
+    command: /bin/bash
+
+  bundle:
+    description: Run Bundler commands
+    service: app
+    command: bundle
+
+  rake:
+    description: Run rake tasks
+    service: app
+    command: bundle exec rake
+
+provision:
+  - dip bundle install
