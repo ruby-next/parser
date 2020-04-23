@@ -6,7 +6,7 @@ module ParseHelper
   require 'parser/all'
   require 'parser/macruby'
   require 'parser/rubymotion'
-  require 'parser/ruby-next/rubynext'
+  require 'parser/rubynext'
 
   ALL_VERSIONS = %w(1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 mac ios next)
 

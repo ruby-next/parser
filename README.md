@@ -1,26 +1,25 @@
+[![Gem Version](https://badge.fury.io/rb/ruby-next-parser.svg)](https://rubygems.org/gems/ruby-next-parser) [![Build](https://github.com/ruby-next/parser/workflows/Build/badge.svg)](https://github.com/ruby-next/parser/actions)
+
 # Parser
 
-**NOTE:** This is a custom build of a [`parser` gem](https://github.com/whitequark/parser) containing edge features not-yet-released or even merged into `master`.
+**NOTE:** This is a fork of a [`parser` gem](https://github.com/whitequark/parser) providing a custom parser for edge and experimental Ruby syntax.
 
-You can install it from GitHub Package Registry:
+Usage:
 
-- Configure Bundler for downloading packages from GitHub (see the [Package Registry docs](https://help.github.com/en/github/managing-packages-with-github-package-registry/configuring-rubygems-for-use-with-github-package-registry#authenticating-to-github-package-registry)) 
-- Install gem globally:
+```ruby
+# add gem to your Gemfile
+gem "ruby-next-parser", ">= 2.8.0.0"
 
-```sh
-gem install parser -v 2.6.3.105 --source "https://<username>:<token>@rubygems.pkg.github.com/ruby-next"
+# require the Ruby Next parser
+require "parser/rubynext"
+
+# and use it
+parser = Parser::RubyNext.new
 ```
 
-- Or add to your Gemfile:
+----
 
-```sh
-source "https://rubygems.pkg.github.com/ruby-next" do
-  gem "parser"
-end
-```
-
-[![Gem Version](https://badge.fury.io/rb/parser.svg)](https://badge.fury.io/rb/parser)
-[![Build Status](https://travis-ci.org/whitequark/parser.svg?branch=master)](https://travis-ci.org/whitequark/parser)
+_Original Parser Readme_
 
 _Parser_ is a production-ready Ruby parser written in pure Ruby. It recognizes as
 much or more code than Ripper, Melbourne, JRubyParser or ruby\_parser, and
