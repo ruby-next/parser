@@ -1,7 +1,6 @@
 # encoding: utf-8
 # frozen_string_literal: true
 
-require 'bundler/gem_tasks'
 require 'rake/testtask'
 require 'rake/clean'
 require 'date'
@@ -34,7 +33,9 @@ GENERATED_FILES = %w(lib/parser/lexer.rb
                      lib/parser/ruby27.rb
                      lib/parser/ruby30.rb
                      lib/parser/macruby.rb
-                     lib/parser/rubymotion.rb)
+                     lib/parser/rubymotion.rb
+                     lib/parser/rubynext.rb
+                     lib/parser/ruby-next/lexer.rb)
 
 CLEAN.include(GENERATED_FILES)
 
