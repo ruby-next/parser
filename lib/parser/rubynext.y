@@ -2933,7 +2933,7 @@ end
 ---- header
 
 require 'parser'
-require_relative 'parser_ext'
+require 'parser/ruby-next/parser_ext'
 
 ---- inner
 
