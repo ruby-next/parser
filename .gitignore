@@ -39,3 +39,5 @@ lib/parser/ruby33.rb
 lib/parser/ruby34.rb
 lib/parser/macruby.rb
 lib/parser/rubymotion.rb
+lib/parser/rubynext.rb
+lib/parser/ruby-next/lexer.rb
