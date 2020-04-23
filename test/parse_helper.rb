@@ -6,8 +6,9 @@ module ParseHelper
   require 'parser/all'
   require 'parser/macruby'
   require 'parser/rubymotion'
+  require 'parser/rubynext'
 
-  ALL_VERSIONS = %w(1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 3.0 3.1 mac ios)
+  ALL_VERSIONS = %w(1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 3.0 3.1 mac ios next)
 
   def setup
     @diagnostics = []
