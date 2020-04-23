@@ -5,6 +5,11 @@ require 'minitest/test'
 
 require 'simplecov'
 
+begin
+  require "pry-byebug"
+rescue LoadError
+end
+
 if ENV.include?('COVERAGE') && SimpleCov.usable?
   require_relative 'racc_coverage_helper'
 
