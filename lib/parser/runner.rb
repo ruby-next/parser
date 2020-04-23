@@ -126,6 +126,11 @@ module Parser
         @parser_class = Parser::RubyMotion
       end
 
+      opts.on '--next', 'Parse as RubyNext would' do
+        require 'parser/rubynext'
+        @parser_class = Parser::RubyNext
+      end
+
       opts.on '-w', '--warnings', 'Enable warnings' do |w|
         @warnings = w
       end
