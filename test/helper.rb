@@ -48,7 +48,8 @@ end
 # correct order of at_exit hooks.
 require 'minitest/autorun'
 
-$LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))
+$LOAD_PATH.delete(File.expand_path('../../lib', __FILE__)) if ENV["EDGE"]
+$LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__)) unless ENV["EDGE"]
 require 'parser'
 
 module NodeCollector

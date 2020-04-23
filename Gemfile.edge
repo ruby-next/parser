@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+# Install parser from Git master
+gem "parser", github: "whitequark/parser"
+
+# Add parser dev deps
+spec = Gem::Specification.load(File.join(__dir__, "parser.gemspec"))
+spec.dependencies.select { |s| s.type == :development }.each do |dep|
+  gem dep.name, *dep.requirement.to_s.split(/,\s*/)
+end
+
+# Workaround for bug in Bundler on JRuby
+# See https://github.com/bundler/bundler/issues/4157
+gem 'ast', '>= 1.1', '< 3.0'
+
+gem "pry-byebug", platform: :mri
