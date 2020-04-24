@@ -139,10 +139,12 @@ class TestLexerNext < Minitest::Test
   def test_endless_method
     setup_lexer "next"
 
-    assert_scanned('def foo = 42',
+    assert_scanned('def foo() = 42',
                     :kDEF, "def", [0, 3],
-                    :tIDENTIFIER, 'foo', [4, 7],
-                    :tEQL, "=", [8, 9],
-                    :tINTEGER, 42, [10, 12])
+                    :tIDENTIFIER, "foo", [4, 7],
+                    :tLPAREN2, "(", [7, 8],
+                    :tRPAREN, ")", [8, 9],
+                    :tEQL, "=", [10, 11],
+                    :tINTEGER, 42, [12, 14])
   end
 end
