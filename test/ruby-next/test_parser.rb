@@ -73,11 +73,11 @@ class TestParser < Minitest::Test
       s(:def_e, :foo,
         s(:args),
         s(:int, 42)),
-      %q{def foo = 42},
+      %q{def foo() = 42},
       %q{~~~ keyword
         |    ~~~ name
-        |        ^ assignment
-        |~~~~~~~~~~~~ expression},
+        |          ^ assignment
+        |~~~~~~~~~~~~~~ expression},
       SINCE_NEXT)
 
     assert_parses(
@@ -97,12 +97,12 @@ class TestParser < Minitest::Test
       s(:defs_e, s(:send, nil, :obj), :foo,
         s(:args),
         s(:int, 42)),
-      %q{def obj.foo = 42},
+      %q{def obj.foo() = 42},
       %q{~~~ keyword
         |       ^ operator
         |        ~~~ name
-        |            ^ assignment
-        |~~~~~~~~~~~~~~~~ expression},
+        |              ^ assignment
+        |~~~~~~~~~~~~~~~~~~ expression},
       SINCE_NEXT)
 
     assert_parses(
@@ -117,6 +117,31 @@ class TestParser < Minitest::Test
         |       ^ operator
         |               ^ assignment
         |~~~~~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_NEXT)
+  end
+
+  def test_endless_method_without_brackets
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tEQL' }],
+      %Q{def foo = 42},
+      %q{        ^ location},
+      SINCE_NEXT)
+
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tEQL' }],
+      %Q{def obj.foo = 42},
+      %q{            ^ location},
+      SINCE_NEXT)
+  end
+
+  def test_method_brackets_expression_bug
+    assert_parses(
+      s(:def, :foo,
+        s(:args),
+        s(:array,
+          s(:int, 42))),
+      %q{def foo() [42] end},
+      %q{},
       SINCE_NEXT)
   end
 end
