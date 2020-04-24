@@ -127,7 +127,7 @@ module Parser
       end
 
       opts.on '--next', 'Parse as RubyNext would' do
-        require 'parser/ruby-next/rubynext'
+        require 'parser/rubynext'
         @parser_class = Parser::RubyNext
       end
 
