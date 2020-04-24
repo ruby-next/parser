@@ -135,4 +135,14 @@ class TestLexerNext < Minitest::Test
                   :tCOLON,      ':',   [4, 5],
                   :tPLUS,       '+',   [6, 7])
   end
+
+  def test_endless_method
+    setup_lexer "next"
+
+    assert_scanned('def foo = 42',
+                    :kDEF, "def", [0, 3],
+                    :tIDENTIFIER, 'foo', [4, 7],
+                    :tEQL, "=", [8, 9],
+                    :tINTEGER, 42, [10, 12])
+  end
 end
