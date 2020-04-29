@@ -26,6 +26,15 @@ module Parser
         endless_definition_map(def_t, dot_t, name_t, assignment_t, body))
     end
 
+    def rassign(lhs, assoc_t, rhs)
+      n(:rasgn, [lhs, rhs], binary_op_map(lhs, assoc_t, rhs))
+    end
+
+    def multi_rassign(lhs, assoc_t, rhs)
+      n(:mrasgn, [ lhs, rhs ],
+        binary_op_map(lhs, assoc_t, rhs))
+    end
+
     def endless_definition_map(keyword_t, operator_t, name_t, assignment_t, body_e)
       body_l = body_e.loc.expression
 
