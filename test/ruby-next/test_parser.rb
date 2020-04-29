@@ -156,4 +156,53 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_NEXT)
   end
+
+  def test_rasgn
+    assert_parses(
+      s(:rasgn,
+        s(:int, 1), s(:lvasgn, :a)),
+      %q{1 => a},
+      %q{~~~~~~ expression
+        |  ^^ operator},
+      SINCE_NEXT)
+
+    assert_parses(
+      s(:rasgn,
+        s(:send, s(:int, 1), :+, s(:int, 2)),
+        s(:gvasgn, :$a)),
+      %q{1 + 2 => $a},
+      %q{~~~~~~~~~~~ expression
+        |      ^^ operator},
+      SINCE_NEXT)
+  end
+
+  def test_mrasgn
+    assert_parses(
+      s(:mrasgn,
+        s(:send, s(:int, 13), :divmod, s(:int, 5)),
+        s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b))),
+      %q{13.divmod(5) => a,b},
+      %q{~~~~~~~~~~~~~~~~~~~ expression
+        |             ^^ operator},
+      SINCE_NEXT)
+
+    assert_parses(
+      s(:mrasgn,
+        s(:mrasgn,
+          s(:send, s(:int, 13), :divmod, s(:int, 5)),
+          s(:mlhs, s(:lvasgn, :a), s(:lvasgn, :b))),
+        s(:mlhs, s(:lvasgn, :c), s(:lvasgn, :d))),
+      %q{13.divmod(5) => a,b => c, d},
+      %q{~~~~~~~~~~~~~~~~~~~ expression (mrasgn)
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~ expression},
+      SINCE_NEXT)
+  end
+
+  def test_rasgn_line_continuation
+    assert_diagnoses(
+      [:error, :unexpected_token, { :token => 'tASSOC' }],
+      %Q{13.divmod(5)\n=> a,b; [a, b]},
+      %{             ^^ location},
+      SINCE_NEXT)
+  end
 end
