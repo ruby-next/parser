@@ -5,7 +5,7 @@ require "parser/meta"
 module Parser
   # Parser metadata
   module Meta
-    NEXT_NODE_TYPES = (NODE_TYPES + %i[meth_ref def_e defs_e]).freeze
+    NEXT_NODE_TYPES = (NODE_TYPES + %i[meth_ref def_e defs_e rasgn mrasgn]).freeze
 
     remove_const(:NODE_TYPES)
     const_set(:NODE_TYPES, NEXT_NODE_TYPES)
