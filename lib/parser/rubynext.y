@@ -2580,6 +2580,7 @@ keyword_variable: kNIL
     f_paren_args: tLPAREN2 f_args rparen
                     {
                       result = @builder.args(val[0], val[1], val[2])
+
                       @lexer.state = :expr_value
                     }
                 | tLPAREN2 args_forward rparen

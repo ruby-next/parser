@@ -6,11 +6,15 @@ require "parser/ast/processor"
 module Parser
   module AST
     class Processor
-      alias on_def_e    on_def
-      alias on_defs_e   on_defs
+      unless method_defined?(:on_def_e)
+        alias on_def_e    on_def
+        alias on_defs_e   on_defs
+      end
 
-      alias on_rasgn    process_regular_node
-      alias on_mrasgn   process_regular_node
+      unless method_defined?(:on_rasgn)
+        alias on_rasgn    process_regular_node
+        alias on_mrasgn   process_regular_node
+      end
     end
   end
 end
