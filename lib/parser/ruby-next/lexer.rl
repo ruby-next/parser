@@ -77,6 +77,7 @@
 #
 
 class Parser::Lexer
+class Next
 
   %% write data nofinal;
   # %
@@ -98,8 +99,6 @@ class Parser::Lexer
   attr_accessor :cond, :cmdarg, :in_kwarg, :context, :command_start
 
   attr_accessor :tokens, :comments
-
-  attr_reader :paren_nest, :cmdarg_stack, :cond_stack, :lambda_stack
 
   def initialize(version)
     @version    = version
@@ -456,7 +455,7 @@ class Parser::Lexer
     '=>'  => :tASSOC,   '::'  => :tCOLON2,  '===' => :tEQQ,
     '<=>' => :tCMP,     '[]'  => :tAREF,    '[]=' => :tASET,
     '{'   => :tLCURLY,  '}'   => :tRCURLY,  '`'   => :tBACK_REF2,
-    '!@'  => :tBANG,    '&.'  => :tANDDOT,
+    '!@'  => :tBANG,    '&.'  => :tANDDOT,  '.:'  => :tMETHREF
   }
 
   PUNCTUATION_BEGIN = {
@@ -1546,11 +1545,7 @@ class Parser::Lexer
       => {
         if tok(tm, tm + 1) == '/'.freeze
           # Ambiguous regexp literal.
-          if @version < 30
-            diagnostic :warning, :ambiguous_literal, nil, range(tm, tm + 1)
-          else
-            diagnostic :warning, :ambiguous_regexp, nil, range(tm, tm + 1)
-          end
+          diagnostic :warning, :ambiguous_literal, nil, range(tm, tm + 1)
         end
 
         p = tm - 1
@@ -2036,7 +2031,7 @@ class Parser::Lexer
 
       '...'
       => {
-        if @version >= 30
+        if @version >= 28
           if @lambda_stack.any? && @lambda_stack.last + 1 == @paren_nest
             # To reject `->(...)` like `->...`
             emit(:tDOT3)
@@ -2363,6 +2358,24 @@ class Parser::Lexer
       # METHOD CALLS
       #
 
+      '.:' w_space+
+      => { emit(:tDOT, '.', @ts, @ts + 1)
+           emit(:tCOLON, ':', @ts + 1, @ts + 2)
+           p = p - tok.length + 2
+           fnext expr_dot; fbreak; };
+
+      '.:'
+      => {
+        if @version >= 27
+          emit_table(PUNCTUATION)
+        else
+          emit(:tDOT, tok(@ts, @ts + 1), @ts, @ts + 1)
+          fhold;
+        end
+
+        fnext expr_dot; fbreak;
+      };
+
       '.' | '&.' | '::'
       => { emit_table(PUNCTUATION)
            fnext expr_dot; fbreak; };
@@ -2390,7 +2403,7 @@ class Parser::Lexer
       '*' | '=>'
       => {
         emit_table(PUNCTUATION)
-        fnext expr_value; fbreak;
+        fgoto expr_value;
       };
 
       # When '|', '~', '!', '=>' are used as operators
@@ -2553,4 +2566,5 @@ class Parser::Lexer
 
   }%%
   # %
+end
 end

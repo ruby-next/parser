@@ -6,6 +6,12 @@ require "parser/ast/processor"
 module Parser
   module AST
     class Processor
+      unless method_defined?(:on_meth_ref)
+        def on_meth_ref(node)
+          node
+        end
+      end
+
       unless method_defined?(:on_def_e)
         alias on_def_e    on_def
         alias on_defs_e   on_defs
