@@ -133,6 +133,11 @@ module Parser
         @parser_class = Parser::RubyMotion
       end
 
+      opts.on '--next', 'Parse as RubyNext would' do
+        require 'parser/rubynext'
+        @parser_class = Parser::RubyNext
+      end
+
       opts.on '--legacy', "Parse with all legacy modes" do
         @legacy = Hash.new(true)
       end

@@ -77,6 +77,7 @@
 #
 
 class Parser::Lexer
+class Next
 
   %% write data nofinal;
   # %
@@ -98,8 +99,6 @@ class Parser::Lexer
   attr_accessor :cond, :cmdarg, :in_kwarg, :context, :command_start
 
   attr_accessor :tokens, :comments
-
-  attr_reader :paren_nest, :cmdarg_stack, :cond_stack, :lambda_stack
 
   def initialize(version)
     @version    = version
@@ -456,7 +455,7 @@ class Parser::Lexer
     '=>'  => :tASSOC,   '::'  => :tCOLON2,  '===' => :tEQQ,
     '<=>' => :tCMP,     '[]'  => :tAREF,    '[]=' => :tASET,
     '{'   => :tLCURLY,  '}'   => :tRCURLY,  '`'   => :tBACK_REF2,
-    '!@'  => :tBANG,    '&.'  => :tANDDOT,
+    '!@'  => :tBANG,    '&.'  => :tANDDOT,  '.:'  => :tMETHREF
   }
 
   PUNCTUATION_BEGIN = {
@@ -518,8 +517,7 @@ class Parser::Lexer
   c_nl_zlen  = c_nl | zlen;
   c_line     = any - c_nl_zlen;
 
-  c_ascii    = 0x00..0x7f;
-  c_unicode  = c_any - c_ascii;
+  c_unicode  = c_any - 0x00..0x7f;
   c_upper    = [A-Z];
   c_lower    = [a-z_]  | c_unicode;
   c_alpha    = c_lower | c_upper;
@@ -706,11 +704,6 @@ class Parser::Lexer
 
   action unescape_char {
     codepoint = @source_pts[p - 1]
-
-    if @version >= 30 && (codepoint == 117 || codepoint == 85) # 'u' or 'U'
-      diagnostic :fatal, :invalid_escape
-    end
-
     if (@escape = ESCAPES[codepoint]).nil?
       @escape = encode_escape(@source_buffer.slice(p - 1))
     end
@@ -738,14 +731,12 @@ class Parser::Lexer
 
   maybe_escaped_char = (
         '\\' c_any      %unescape_char
-    |   '\\x' xdigit{1,2} % { @escape = encode_escape(tok(p - 2, p).to_i(16)) } %slash_c_char
     | ( c_any - [\\] )  %read_post_meta_or_ctrl_char
   );
 
   maybe_escaped_ctrl_char = ( # why?!
         '\\' c_any      %unescape_char %slash_c_char
     |   '?'             % { @escape = "\x7f" }
-    |   '\\x' xdigit{1,2} % { @escape = encode_escape(tok(p - 2, p).to_i(16)) } %slash_c_char
     | ( c_any - [\\?] ) %read_post_meta_or_ctrl_char %slash_c_char
   );
 
@@ -937,10 +928,6 @@ class Parser::Lexer
         #   b"
         # must be parsed as "ab"
         current_literal.extend_string(tok.gsub("\\\n".freeze, ''.freeze), @ts, @te)
-      elsif current_literal.regexp? && @version >= 31 && %w[c C m M].include?(escaped_char)
-        # Ruby >= 3.1 escapes \c- and \m chars, that's the only escape sequence
-        # supported by regexes so far, so it needs a separate branch.
-        current_literal.extend_string(@escape, @ts, @te)
       elsif current_literal.regexp?
         # Regular expressions should include escape sequences in their
         # escaped form. On the other hand, escaped newlines are removed (in cases like "\\C-\\\n\\M-x")
@@ -1413,7 +1400,7 @@ class Parser::Lexer
       ':'
       => { fhold; fgoto expr_beg; };
 
-      '%s' (c_ascii - [A-Za-z0-9])
+      '%s' c_any
       => {
         if version?(23)
           type, delimiter = tok[0..-2], tok[-1].chr
@@ -1441,18 +1428,6 @@ class Parser::Lexer
       label ( any - ':' )
       => { emit(:tLABEL, tok(@ts, @te - 2), @ts, @te - 1)
            fhold; fnext expr_labelarg; fbreak; };
-
-      '...' c_nl
-      => {
-        if @version >= 31
-          emit(:tBDOT3, '...'.freeze, @ts, @te - 1)
-          emit(:tNL, "\n".freeze, @te - 1, @te)
-          fnext expr_end; fbreak;
-        else
-          p -= 4;
-          fhold; fgoto expr_end;
-        end
-      };
 
       w_space_comment;
 
@@ -1570,11 +1545,7 @@ class Parser::Lexer
       => {
         if tok(tm, tm + 1) == '/'.freeze
           # Ambiguous regexp literal.
-          if @version < 30
-            diagnostic :warning, :ambiguous_literal, nil, range(tm, tm + 1)
-          else
-            diagnostic :warning, :ambiguous_regexp, nil, range(tm, tm + 1)
-          end
+          diagnostic :warning, :ambiguous_literal, nil, range(tm, tm + 1)
         end
 
         p = tm - 1
@@ -1777,14 +1748,14 @@ class Parser::Lexer
       };
 
       # %<string>
-      '%' ( c_ascii - [A-Za-z0-9] )
+      '%' ( any - [A-Za-z] )
       => {
         type, delimiter = @source_buffer.slice(@ts).chr, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
       # %w(we are the people)
-      '%' [A-Za-z] (c_ascii - [A-Za-z0-9])
+      '%' [A-Za-z]+ c_any
       => {
         type, delimiter = tok[0..-2], tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
@@ -2058,38 +2029,19 @@ class Parser::Lexer
         fnext expr_beg; fbreak;
       };
 
-      '...' c_nl?
+      '...'
       => {
-        # Here we scan and conditionally emit "\n":
-        # + if it's there
-        #   + and emitted we do nothing
-        #   + and not emitted we return `p` to "\n" to process it on the next scan
-        # + if it's not there we do nothing
-        followed_by_nl = @te - 1 == @newline_s
-        nl_emitted = false
-        dots_te = followed_by_nl ? @te - 1 : @te
-
-        if @version >= 30
+        if @version >= 28
           if @lambda_stack.any? && @lambda_stack.last + 1 == @paren_nest
             # To reject `->(...)` like `->...`
-            emit(:tDOT3, '...'.freeze, @ts, dots_te)
+            emit(:tDOT3)
           else
-            emit(:tBDOT3, '...'.freeze, @ts, dots_te)
-
-            if @version >= 31 && followed_by_nl && @context.in_def_open_args?
-              emit(:tNL, @te - 1, @te)
-              nl_emitted = true
-            end
+            emit(:tBDOT3)
           end
         elsif @version >= 27
-          emit(:tBDOT3, '...'.freeze, @ts, dots_te)
+          emit(:tBDOT3)
         else
-          emit(:tDOT3, '...'.freeze, @ts, dots_te)
-        end
-
-        if followed_by_nl && !nl_emitted
-          # return "\n" to process it on the next scan
-          fhold;
+          emit(:tDOT3)
         end
 
         fnext expr_beg; fbreak;
@@ -2406,6 +2358,24 @@ class Parser::Lexer
       # METHOD CALLS
       #
 
+      '.:' w_space+
+      => { emit(:tDOT, '.', @ts, @ts + 1)
+           emit(:tCOLON, ':', @ts + 1, @ts + 2)
+           p = p - tok.length + 2
+           fnext expr_dot; fbreak; };
+
+      '.:'
+      => {
+        if @version >= 27
+          emit_table(PUNCTUATION)
+        else
+          emit(:tDOT, tok(@ts, @ts + 1), @ts, @ts + 1)
+          fhold;
+        end
+
+        fnext expr_dot; fbreak;
+      };
+
       '.' | '&.' | '::'
       => { emit_table(PUNCTUATION)
            fnext expr_dot; fbreak; };
@@ -2433,7 +2403,7 @@ class Parser::Lexer
       '*' | '=>'
       => {
         emit_table(PUNCTUATION)
-        fnext expr_value; fbreak;
+        fgoto expr_value;
       };
 
       # When '|', '~', '!', '=>' are used as operators
@@ -2550,28 +2520,6 @@ class Parser::Lexer
         end
       };
 
-      c_space* '..'
-      => {
-        emit(:tNL, nil, @newline_s, @newline_s + 1)
-        if @version < 27
-          fhold; fnext line_begin; fbreak;
-        else
-          emit(:tBDOT2)
-          fnext expr_beg; fbreak;
-        end
-      };
-
-      c_space* '...'
-      => {
-        emit(:tNL, nil, @newline_s, @newline_s + 1)
-        if @version < 27
-          fhold; fnext line_begin; fbreak;
-        else
-          emit(:tBDOT3)
-          fnext expr_beg; fbreak;
-        end
-      };
-
       c_space* %{ tm = p } ('.' | '&.')
       => { p = tm - 1; fgoto expr_end; };
 
@@ -2618,4 +2566,5 @@ class Parser::Lexer
 
   }%%
   # %
+end
 end
