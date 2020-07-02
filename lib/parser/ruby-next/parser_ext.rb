@@ -2,7 +2,7 @@
 
 require_relative "lexer"
 require_relative "builder"
-require_relative "source/map/endless_definition" unless defined?(Parser::Source::Map::EndlessDefinition)
+require_relative "source/map/method_definition" unless defined?(Parser::Source::Map::MethodDefinition)
 require_relative "ast/processor"
 
 module Parser
