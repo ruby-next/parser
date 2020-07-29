@@ -11,11 +11,6 @@ module Parser
           node
         end
       end
-
-      unless method_defined?(:on_rasgn)
-        alias on_rasgn    process_regular_node
-        alias on_mrasgn   process_regular_node
-      end
     end
   end
 end
