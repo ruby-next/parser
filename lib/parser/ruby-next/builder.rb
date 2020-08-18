@@ -9,6 +9,10 @@ module Parser
     def method_ref(receiver, dot_t, selector_t)
       n(:meth_ref, [ receiver, value(selector_t).to_sym ],
           send_map(receiver, dot_t, selector_t, nil, [], nil))
-    end unless method_defined?(:method_ref)
+    end
+
+    def ipair(var)
+      n(:ipair, [ var ], var.loc)
+    end
   end
 end
