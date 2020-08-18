@@ -2960,7 +2960,24 @@ keyword_variable: kNIL
                     {
                       result = []
                     }
-                | assocs trailer
+                | assoc_items trailer
+
+    assoc_items	: assoc_item
+                    {
+                      result = [ val[0] ]
+                    }
+                | assoc_items tCOMMA assoc_item
+                    {
+                      result = val[0] << val[2]
+                    }
+
+      assoc_item: assoc
+                |
+                  tIDENTIFIER
+                    {
+                      lvar = @builder.accessible(@builder.ident(val[0]))
+                      result = @builder.ipair(lvar)
+                    }
 
           assocs: assoc
                     {
