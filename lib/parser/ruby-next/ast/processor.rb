@@ -6,10 +6,12 @@ require "parser/ast/processor"
 module Parser
   module AST
     class Processor
-      unless method_defined?(:on_meth_ref)
-        def on_meth_ref(node)
-          node
-        end
+      def on_meth_ref(node)
+        node
+      end
+
+      def on_ipair(node)
+        node
       end
     end
   end
