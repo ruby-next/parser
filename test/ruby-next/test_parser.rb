@@ -67,4 +67,56 @@ class TestParser < Minitest::Test
       %q{    ^ location},
       SINCE_NEXT)
   end
+
+  def test_ipair
+    assert_parses(
+      s(:hash, s(:ipair, s(:lvar, :bar))),
+      %q{{bar}},
+      %q{^ begin
+        |    ^ end
+        |~~~~~ expression},
+      SINCE_NEXT)
+
+    assert_parses(
+      s(:hash, s(:ipair, s(:send, nil, :x))),
+      %q{{x}},
+      %q{^ begin
+        |  ^ end
+        |~~~ expression},
+      SINCE_NEXT)
+
+    assert_parses(
+      s(:hash, s(:ipair, s(:lvar, :bar))),
+      %q{{bar,}},
+      %q{^ begin
+        |     ^ end
+        |~~~~~~ expression},
+      SINCE_NEXT)
+
+    assert_parses(
+      s(:hash, s(:ipair, s(:lvar, :bar)), s(:pair, s(:sym, :foo), s(:int, 1))),
+      %q{{bar, foo: 1}},
+      %q{^ begin
+        |            ^ end
+        |~~~~~~~~~~~~~ expression},
+      SINCE_NEXT)
+
+    assert_parses(
+      s(:hash, s(:ipair, s(:lvar, :bar)), s(:pair, s(:sym, :foo), s(:int, 1)), s(:ipair, s(:send, nil, :x))),
+      %q{{bar, foo: 1, x}},
+      %q{},
+      SINCE_NEXT)
+
+    assert_parses(
+      s(:hash, s(:ipair, s(:lvar, :bar)), s(:pair, s(:sym, :foo), s(:int, 1)), s(:kwsplat, s(:lvar, :baz))),
+      %q{{bar, foo: 1, **baz}},
+      %q{},
+      SINCE_NEXT)
+
+    assert_parses(
+      s(:hash, s(:ipair, s(:lvar, :bar)), s(:pair, s(:sym, :x), s(:str, "y")), s(:ipair, s(:send, nil, :z))),
+      %q{{bar, :x => "y", z}},
+      %q{},
+      SINCE_NEXT)
+  end
 end
