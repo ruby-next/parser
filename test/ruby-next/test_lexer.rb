@@ -8,7 +8,7 @@ require 'parser/ruby-next/lexer'
 
 class TestLexerNext < Minitest::Test
   def setup_lexer(version)
-    @lex = version == "next" ? Parser::Lexer::Next.new(28) : Parser::Lexer.new(version)
+    @lex = version == "next" ? Parser::Lexer::Next.new(30) : Parser::Lexer.new(version)
 
     @lex.comments = []
     @lex.diagnostics = Parser::Diagnostic::Engine.new
