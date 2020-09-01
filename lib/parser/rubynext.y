@@ -3041,7 +3041,7 @@ require 'parser/ruby-next/parser_ext'
   prepend Parser::NextExt
 
   def version
-    28
+    30
   end
 
   def default_encoding
