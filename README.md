@@ -8,7 +8,7 @@ Usage:
 
 ```ruby
 # add gem to your Gemfile
-gem "ruby-next-parser", ">= 2.8.0.0"
+gem "ruby-next-parser", ">= 3.0.0.0"
 
 # require the Ruby Next parser
 require "parser/rubynext"
