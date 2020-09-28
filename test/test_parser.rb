@@ -10430,13 +10430,13 @@ class TestParser < Minitest::Test
       [:error, :reserved_for_numparam, { :name => '_1' }],
       %q{proc {_1 = nil}},
       %q{      ^^ location},
-      SINCE_3_0)
+      SINCE_3_0 - ['next'])
 
     assert_diagnoses(
       [:error, :reserved_for_numparam, { :name => '_2' }],
       %q{_2 = 1},
       %q{^^ location},
-      SINCE_3_0)
+      SINCE_3_0 - ['next'])
 
     # Arguments:
 
@@ -10505,7 +10505,7 @@ class TestParser < Minitest::Test
         [:error, :reserved_for_numparam, { :name => '_3' }],
         code,
         location,
-        SINCE_3_0)
+        SINCE_3_0 - ['next'])
     end
 
     # Method definitions:
@@ -10536,7 +10536,7 @@ class TestParser < Minitest::Test
         [:error, :reserved_for_numparam, { :name => '_5' }],
         code,
         location,
-        SINCE_3_0)
+        SINCE_3_0 - ['next'])
     end
   end
 
