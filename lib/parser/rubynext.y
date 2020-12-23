@@ -46,7 +46,17 @@ preclow
 
 rule
 
-         program: top_compstmt
+         program:   {
+                      @current_arg_stack.push(nil)
+                      @max_numparam_stack.push
+                    }
+                  top_compstmt
+                    {
+                      result = val[1]
+
+                      @current_arg_stack.pop
+                      @max_numparam_stack.pop
+                    }
 
     top_compstmt: top_stmts opt_terms
                     {
@@ -208,6 +218,7 @@ rule
                     }
                 | expr
 
+
     command_asgn: lhs tEQL command_rhs
                     {
                       result = @builder.assign(val[0], val[1], val[2])
@@ -287,15 +298,31 @@ rule
                     {
                       @lexer.state = :expr_beg
                       @lexer.command_start = false
-                      pattern_variables.push
+                      @pattern_variables.push
 
                       result = @lexer.in_kwarg
                       @lexer.in_kwarg = true
                     }
                   p_expr
                     {
+                      @pattern_variables.pop
                       @lexer.in_kwarg = val[2]
-                      result = @builder.in_match(val[0], val[1], val[3])
+                      result = @builder.match_pattern(val[0], val[1], val[3])
+                    }
+                | arg kIN
+                    {
+                      @lexer.state = :expr_beg
+                      @lexer.command_start = false
+                      @pattern_variables.push
+
+                      result = @lexer.in_kwarg
+                      @lexer.in_kwarg = true
+                    }
+                  p_expr
+                    {
+                      @pattern_variables.pop
+                      @lexer.in_kwarg = val[2]
+                      result = @builder.match_pattern_p(val[0], val[1], val[3])
                     }
                 | arg =tLBRACE_ARG
 
@@ -310,7 +337,7 @@ rule
                       result = [ val[1], val[2] ]
                     }
 
-        def_name:  fname
+        def_name: fname
                     {
                       @static_env.extend_static
                       @lexer.cmdarg.push(false)
@@ -846,10 +873,9 @@ rule
                       result = @builder.ternary(val[0], val[1],
                                                 val[2], val[4], val[5])
                     }
-                | defn_head f_paren_args tEQL arg
+                | defn_head f_opt_paren_args tEQL arg
                     {
                       _def_t, name_t = val[0]
-
                       endless_method_name(name_t)
 
                       result = @builder.def_endless_method(*val[0],
@@ -861,7 +887,7 @@ rule
                       @context.pop
                       @current_arg_stack.pop
                     }
-                | defn_head f_paren_args tEQL arg kRESCUE_MOD arg
+                | defn_head f_opt_paren_args tEQL arg kRESCUE_MOD arg
                     {
                       _def_t, name_t = val[0]
                       endless_method_name(name_t)
@@ -881,7 +907,7 @@ rule
                       @context.pop
                       @current_arg_stack.pop
                     }
-                | defs_head f_paren_args tEQL arg
+                | defs_head f_opt_paren_args tEQL arg
                     {
                       _def_t, _recv, _dot_t, name_t = val[0]
                       endless_method_name(name_t)
@@ -895,7 +921,7 @@ rule
                       @context.pop
                       @current_arg_stack.pop
                     }
-                | defs_head f_paren_args tEQL arg kRESCUE_MOD arg
+                | defs_head f_opt_paren_args tEQL arg kRESCUE_MOD arg
                     {
                       _def_t, _recv, _dot_t, name_t = val[0]
                       endless_method_name(name_t)
@@ -1842,6 +1868,8 @@ opt_block_args_tail:
                     }
                   p_top_expr then
                     {
+                      @pattern_variables.pop
+                      @pattern_hash_keys.pop
                       @lexer.in_kwarg = val[1]
                     }
                   compstmt p_cases
@@ -2608,6 +2636,12 @@ keyword_variable: kNIL
                 | # nothing
                     {
                       result = nil
+                    }
+
+f_opt_paren_args: f_paren_args
+                | none
+                    {
+                      result = @builder.args(nil, [], nil)
                     }
 
    f_paren_args: tLPAREN2 f_args rparen
