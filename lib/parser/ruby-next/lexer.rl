@@ -100,6 +100,8 @@ class Next
 
   attr_accessor :tokens, :comments
 
+  attr_reader :paren_nest, :cmdarg_stack, :cond_stack, :lambda_stack
+
   def initialize(version)
     @version    = version
     @static_env = nil
@@ -1545,7 +1547,11 @@ class Next
       => {
         if tok(tm, tm + 1) == '/'.freeze
           # Ambiguous regexp literal.
-          diagnostic :warning, :ambiguous_literal, nil, range(tm, tm + 1)
+          if @version < 30
+            diagnostic :warning, :ambiguous_literal, nil, range(tm, tm + 1)
+          else
+            diagnostic :warning, :ambiguous_regexp, nil, range(tm, tm + 1)
+          end
         end
 
         p = tm - 1
@@ -2031,7 +2037,7 @@ class Next
 
       '...'
       => {
-        if @version >= 28
+        if @version >= 30
           if @lambda_stack.any? && @lambda_stack.last + 1 == @paren_nest
             # To reject `->(...)` like `->...`
             emit(:tDOT3)
@@ -2403,7 +2409,7 @@ class Next
       '*' | '=>'
       => {
         emit_table(PUNCTUATION)
-        fgoto expr_value;
+        fnext expr_value; fbreak;
       };
 
       # When '|', '~', '!', '=>' are used as operators
