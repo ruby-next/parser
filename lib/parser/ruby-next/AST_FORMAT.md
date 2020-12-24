@@ -36,3 +36,29 @@ Format:
   ~~~~~~ expression (spair)
  ~~~~~~~~ expression (hash)
 ~~~
+
+### Kwargs
+
+#### Implicit kwarg
+
+Format:
+
+~~~
+(hash (ipair (send nil :x)))
+"foo x:"
+     ~~ expression
+~~~
+
+~~~
+(hash (ipair (lvar :foo)))
+"foo(foo:)"
+     ~~~~ expression
+~~~
+
+If `emit_kwargs` compatibility flag is enabled:
+
+~~~
+(kwargs (ipair (send nil :x)))
+"foo x:"
+     ~~ expression
+~~~
