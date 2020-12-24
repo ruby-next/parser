@@ -3025,6 +3025,11 @@ f_opt_paren_args: f_paren_args
                     {
                       result = @builder.pair_keyword(val[0], val[1])
                     }
+                | tLABEL
+                    {
+                      lvar = @builder.accessible(@builder.ident(val[0]))
+                      result = @builder.ipair_keyword(lvar)
+                    }
                 | tSTRING_BEG string_contents tLABEL_END arg_value
                     {
                       result = @builder.pair_quoted(val[0], val[1], val[2], val[3])
