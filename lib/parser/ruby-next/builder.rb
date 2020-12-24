@@ -15,6 +15,10 @@ module Parser
       n(:ipair, [ var ], var.loc)
     end
 
+    def ipair_keyword(var)
+      n(:ipair, [ var ], var.loc)
+    end
+
     def check_reserved_for_numparam(name, loc)
       # We don't want to raise SyntaxError, 'cause we want to use _x vars for older Rubies.
       # The exception should be raised by Ruby itself for versions supporting numbered parameters

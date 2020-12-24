@@ -119,4 +119,49 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_NEXT)
   end
+
+  def test_implicit_pair_keyword
+    assert_parses(
+      s(:send, nil, :foo,
+        s(:kwargs, s(:ipair, s(:lvar, :bar)))),
+      %q{foo bar:},
+      %q{},
+      SINCE_NEXT)
+
+    assert_parses(
+      s(:send, nil, :foo,
+        s(:kwargs, s(:ipair, s(:lvar, :bar)))),
+      %q{foo(bar:)},
+      %q{},
+      SINCE_NEXT)
+
+    assert_parses(
+      s(:send, nil, :foo,
+        s(:kwargs,
+          s(:ipair, s(:lvar, :bar)),
+          s(:pair, s(:sym, :foo), s(:int, 1)))),
+      %q{foo bar:, foo: 1},
+      %q{},
+      SINCE_NEXT)
+
+    assert_parses(
+      s(:send, nil, :foo,
+        s(:kwargs,
+          s(:ipair, s(:lvar, :bar)),
+          s(:pair, s(:sym, :foo), s(:int, 1)),
+          s(:ipair, s(:send, nil, :x)))),
+      %q{foo(bar:, foo: 1, x:)},
+      %q{},
+      SINCE_NEXT)
+
+    assert_parses(
+      s(:send, nil, :foo,
+        s(:kwargs,
+          s(:ipair, s(:lvar, :bar)),
+          s(:pair, s(:sym, :foo), s(:int, 1)),
+          s(:kwsplat, s(:lvar, :baz)))),
+      %q{foo bar:, foo: 1, **baz},
+      %q{},
+      SINCE_NEXT)
+  end
 end
