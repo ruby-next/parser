@@ -14,8 +14,8 @@ Gem::Specification.new do |s|
   )
 
   s.metadata = {
-    "homepage_uri" => "http://github.com/parser/ruby-next",
-    "source_code_uri" => "http://github.com/parser/ruby-next"
+    "homepage_uri" => "http://github.com/ruby-next/parser",
+    "source_code_uri" => "http://github.com/ruby-next/parser"
   }
 
   s.license = "MIT"
