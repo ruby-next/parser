@@ -261,6 +261,74 @@ rule
                                     val[0], val[1], val[2]),
                                   val[3], val[4])
                     }
+                | defn_head f_opt_paren_args tEQL command
+                    {
+                      _def_t, name_t = val[0]
+                      endless_method_name(name_t)
+
+                      result = @builder.def_endless_method(*val[0],
+                                 val[1], val[2], val[3])
+
+                      @lexer.cmdarg.pop
+                      @lexer.cond.pop
+                      @static_env.unextend
+                      @context.pop
+                      @current_arg_stack.pop
+                    }
+                | defn_head f_opt_paren_args tEQL command kRESCUE_MOD arg
+                    {
+                      _def_t, name_t = val[0]
+                      endless_method_name(name_t)
+
+                      rescue_body = @builder.rescue_body(val[4],
+                                        nil, nil, nil,
+                                        nil, val[5])
+
+                      method_body = @builder.begin_body(val[3], [ rescue_body ])
+
+                      result = @builder.def_endless_method(*val[0],
+                                 val[1], val[2], method_body)
+
+                      @lexer.cmdarg.pop
+                      @lexer.cond.pop
+                      @static_env.unextend
+                      @context.pop
+                      @current_arg_stack.pop
+                    }
+                | defs_head f_opt_paren_args tEQL command
+                    {
+                      _def_t, _recv, _dot_t, name_t = val[0]
+                      endless_method_name(name_t)
+
+                      result = @builder.def_endless_singleton(*val[0],
+                                 val[1], val[2], val[3])
+
+                      @lexer.cmdarg.pop
+                      @lexer.cond.pop
+                      @static_env.unextend
+                      @context.pop
+                      @current_arg_stack.pop
+                    }
+                | defs_head f_opt_paren_args tEQL command kRESCUE_MOD arg
+                    {
+                      _def_t, _recv, _dot_t, name_t = val[0]
+                      endless_method_name(name_t)
+
+                      rescue_body = @builder.rescue_body(val[4],
+                                        nil, nil, nil,
+                                        nil, val[5])
+
+                      method_body = @builder.begin_body(val[3], [ rescue_body ])
+
+                      result = @builder.def_endless_singleton(*val[0],
+                                 val[1], val[2], method_body)
+
+                      @lexer.cmdarg.pop
+                      @lexer.cond.pop
+                      @static_env.unextend
+                      @context.pop
+                      @current_arg_stack.pop
+                    }
                 | backref tOP_ASGN command_rhs
                     {
                       @builder.op_assign(val[0], val[1], val[2])
@@ -1950,6 +2018,7 @@ opt_block_args_tail:
                     }
 
     p_expr_basic: p_value
+                | p_variable
                 | p_const p_lparen p_args rparen
                     {
                       @pattern_hash_keys.pop
@@ -2195,8 +2264,8 @@ opt_block_args_tail:
                     {
                       result = @builder.range_exclusive(val[0], val[1], nil)
                     }
-                | p_variable
                 | p_var_ref
+                | p_expr_ref
                 | p_const
                 | tBDOT2 p_primitive
                     {
@@ -2236,7 +2305,11 @@ opt_block_args_tail:
                       lvar = @builder.accessible(@builder.ident(val[1]))
                       result = @builder.pin(val[0], lvar)
                     }
-
+      p_expr_ref: tCARET tLPAREN expr_value tRPAREN
+                    {
+                      expr = @builder.begin(val[1], val[2], val[3])
+                      result = @builder.pin(val[0], expr)
+                    }
          p_const: tCOLON3 cname
                     {
                       result = @builder.const_global(val[0], val[1])
@@ -3092,7 +3165,7 @@ require 'parser/ruby-next/parser_ext'
   prepend Parser::NextExt
 
   def version
-    30
+    31
   end
 
   def default_encoding
@@ -3100,7 +3173,7 @@ require 'parser/ruby-next/parser_ext'
   end
 
   def endless_method_name(name_t)
-    if name_t[0].end_with?('=')
+    if !%w[=== == != <= >=].include?(name_t[0]) && name_t[0].end_with?('=')
       diagnostic :error, :endless_setter, nil, name_t
     end
   end
