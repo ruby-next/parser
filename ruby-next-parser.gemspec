@@ -25,5 +25,5 @@ Gem::Specification.new do |s|
 
   s.require_paths = ["lib"]
 
-  s.add_dependency "parser", ">= 2.7.2.0"
+  s.add_dependency "parser", ">= 3.0.3.0"
 end
