@@ -10887,7 +10887,7 @@ class TestParser < Minitest::Test
       [:error, :reserved_for_numparam, { :name => '_1' }],
       %q{proc { 1 in _1 }},
       %q{            ~~ location},
-      SINCE_3_0)
+      SINCE_3_0 - %w(next))
 
     assert_diagnoses(
       [:error, :cant_assign_to_numparam, { :name => '_1' }],
