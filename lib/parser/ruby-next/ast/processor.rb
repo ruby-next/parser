@@ -9,10 +9,6 @@ module Parser
       def on_meth_ref(node)
         node
       end
-
-      def on_ipair(node)
-        node
-      end
     end
   end
 end

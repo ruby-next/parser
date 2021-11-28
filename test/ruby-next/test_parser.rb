@@ -70,52 +70,52 @@ class TestParser < Minitest::Test
 
   def test_ipair
     assert_parses(
-      s(:hash, s(:ipair, s(:lvar, :bar))),
-      %q{{bar}},
-      %q{^ begin
-        |    ^ end
-        |~~~~~ expression},
-      SINCE_NEXT)
-
-    assert_parses(
-      s(:hash, s(:ipair, s(:send, nil, :x))),
-      %q{{x}},
-      %q{^ begin
-        |  ^ end
-        |~~~ expression},
-      SINCE_NEXT)
-
-    assert_parses(
-      s(:hash, s(:ipair, s(:lvar, :bar))),
-      %q{{bar,}},
+      s(:hash, s(:pair, s(:sym, :bar), s(:lvar, :bar))),
+      %q{{bar:}},
       %q{^ begin
         |     ^ end
         |~~~~~~ expression},
       SINCE_NEXT)
 
     assert_parses(
-      s(:hash, s(:ipair, s(:lvar, :bar)), s(:pair, s(:sym, :foo), s(:int, 1))),
-      %q{{bar, foo: 1}},
+      s(:hash, s(:pair, s(:sym, :x), s(:send, nil, :x))),
+      %q{{x:}},
       %q{^ begin
-        |            ^ end
-        |~~~~~~~~~~~~~ expression},
+        |   ^ end
+        |~~~~ expression},
       SINCE_NEXT)
 
     assert_parses(
-      s(:hash, s(:ipair, s(:lvar, :bar)), s(:pair, s(:sym, :foo), s(:int, 1)), s(:ipair, s(:send, nil, :x))),
-      %q{{bar, foo: 1, x}},
+      s(:hash, s(:pair, s(:sym, :bar), s(:lvar, :bar))),
+      %q{{bar:,}},
+      %q{^ begin
+        |      ^ end
+        |~~~~~~~ expression},
+      SINCE_NEXT)
+
+    assert_parses(
+      s(:hash, s(:pair, s(:sym, :bar), s(:lvar, :bar)), s(:pair, s(:sym, :foo), s(:int, 1))),
+      %q{{bar:, foo: 1}},
+      %q{^ begin
+        |             ^ end
+        |~~~~~~~~~~~~~~ expression},
+      SINCE_NEXT)
+
+    assert_parses(
+      s(:hash, s(:pair, s(:sym, :bar), s(:lvar, :bar)), s(:pair, s(:sym, :foo), s(:int, 1)), s(:pair, s(:sym, :x), s(:send, nil, :x))),
+      %q{{bar:, foo: 1, x:}},
       %q{},
       SINCE_NEXT)
 
     assert_parses(
-      s(:hash, s(:ipair, s(:lvar, :bar)), s(:pair, s(:sym, :foo), s(:int, 1)), s(:kwsplat, s(:lvar, :baz))),
-      %q{{bar, foo: 1, **baz}},
+      s(:hash, s(:pair, s(:sym, :bar), s(:lvar, :bar)), s(:pair, s(:sym, :foo), s(:int, 1)), s(:kwsplat, s(:lvar, :baz))),
+      %q{{bar:, foo: 1, **baz}},
       %q{},
       SINCE_NEXT)
 
     assert_parses(
-      s(:hash, s(:ipair, s(:lvar, :bar)), s(:pair, s(:sym, :x), s(:str, "y")), s(:ipair, s(:send, nil, :z))),
-      %q{{bar, :x => "y", z}},
+      s(:hash, s(:pair, s(:sym, :bar), s(:lvar, :bar)), s(:pair, s(:sym, :x), s(:str, "y")), s(:pair, s(:sym, :z), s(:send, nil, :z))),
+      %q{{bar:, :x => "y", z:}},
       %q{},
       SINCE_NEXT)
   end
@@ -123,14 +123,14 @@ class TestParser < Minitest::Test
   def test_implicit_pair_keyword
     assert_parses(
       s(:send, nil, :foo,
-        s(:kwargs, s(:ipair, s(:lvar, :bar)))),
+        s(:kwargs, s(:pair, s(:sym, :bar), s(:lvar, :bar)))),
       %q{foo bar:},
       %q{},
       SINCE_NEXT)
 
     assert_parses(
       s(:send, nil, :foo,
-        s(:kwargs, s(:ipair, s(:lvar, :bar)))),
+        s(:kwargs, s(:pair, s(:sym, :bar), s(:lvar, :bar)))),
       %q{foo(bar:)},
       %q{},
       SINCE_NEXT)
@@ -138,7 +138,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:send, nil, :foo,
         s(:kwargs,
-          s(:ipair, s(:lvar, :bar)),
+          s(:pair, s(:sym, :bar), s(:lvar, :bar)),
           s(:pair, s(:sym, :foo), s(:int, 1)))),
       %q{foo bar:, foo: 1},
       %q{},
@@ -147,9 +147,9 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:send, nil, :foo,
         s(:kwargs,
-          s(:ipair, s(:lvar, :bar)),
+          s(:pair, s(:sym, :bar), s(:lvar, :bar)),
           s(:pair, s(:sym, :foo), s(:int, 1)),
-          s(:ipair, s(:send, nil, :x)))),
+          s(:pair, s(:sym, :x), s(:send, nil, :x)))),
       %q{foo(bar:, foo: 1, x:)},
       %q{},
       SINCE_NEXT)
@@ -157,7 +157,7 @@ class TestParser < Minitest::Test
     assert_parses(
       s(:send, nil, :foo,
         s(:kwargs,
-          s(:ipair, s(:lvar, :bar)),
+          s(:pair, s(:sym, :bar), s(:lvar, :bar)),
           s(:pair, s(:sym, :foo), s(:int, 1)),
           s(:kwsplat, s(:lvar, :baz)))),
       %q{foo bar:, foo: 1, **baz},

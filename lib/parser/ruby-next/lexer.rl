@@ -519,7 +519,8 @@ class Next
   c_nl_zlen  = c_nl | zlen;
   c_line     = any - c_nl_zlen;
 
-  c_unicode  = c_any - 0x00..0x7f;
+  c_ascii    = 0x00..0x7f;
+  c_unicode  = c_any - c_ascii;
   c_upper    = [A-Z];
   c_lower    = [a-z_]  | c_unicode;
   c_alpha    = c_lower | c_upper;
@@ -706,6 +707,11 @@ class Next
 
   action unescape_char {
     codepoint = @source_pts[p - 1]
+
+    if @version >= 30 && (codepoint == 117 || codepoint == 85) # 'u' or 'U'
+      diagnostic :fatal, :invalid_escape
+    end
+
     if (@escape = ESCAPES[codepoint]).nil?
       @escape = encode_escape(@source_buffer.slice(p - 1))
     end
@@ -733,12 +739,14 @@ class Next
 
   maybe_escaped_char = (
         '\\' c_any      %unescape_char
+    |   '\\x' xdigit{1,2} % { @escape = encode_escape(tok(p - 2, p).to_i(16)) } %slash_c_char
     | ( c_any - [\\] )  %read_post_meta_or_ctrl_char
   );
 
   maybe_escaped_ctrl_char = ( # why?!
         '\\' c_any      %unescape_char %slash_c_char
     |   '?'             % { @escape = "\x7f" }
+    |   '\\x' xdigit{1,2} % { @escape = encode_escape(tok(p - 2, p).to_i(16)) } %slash_c_char
     | ( c_any - [\\?] ) %read_post_meta_or_ctrl_char %slash_c_char
   );
 
@@ -930,7 +938,7 @@ class Next
         #   b"
         # must be parsed as "ab"
         current_literal.extend_string(tok.gsub("\\\n".freeze, ''.freeze), @ts, @te)
-      elsif current_literal.regexp?
+      elsif current_literal.regexp? && @version < 31
         # Regular expressions should include escape sequences in their
         # escaped form. On the other hand, escaped newlines are removed (in cases like "\\C-\\\n\\M-x")
         current_literal.extend_string(tok.gsub("\\\n".freeze, ''.freeze), @ts, @te)
@@ -1402,7 +1410,7 @@ class Next
       ':'
       => { fhold; fgoto expr_beg; };
 
-      '%s' c_any
+      '%s' (c_ascii - [A-Za-z0-9])
       => {
         if version?(23)
           type, delimiter = tok[0..-2], tok[-1].chr
@@ -1754,14 +1762,14 @@ class Next
       };
 
       # %<string>
-      '%' ( any - [A-Za-z] )
+      '%' ( c_ascii - [A-Za-z0-9] )
       => {
         type, delimiter = @source_buffer.slice(@ts).chr, tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
       };
 
       # %w(we are the people)
-      '%' [A-Za-z]+ c_any
+      '%' [A-Za-z] (c_ascii - [A-Za-z0-9])
       => {
         type, delimiter = tok[0..-2], tok[-1].chr
         fgoto *push_literal(type, delimiter, @ts);
@@ -2523,6 +2531,28 @@ class Next
           # Note: block comments before leading dot are not supported on any version of Ruby.
           emit(:tNL, nil, @newline_s, @newline_s + 1)
           fhold; fnext line_begin; fbreak;
+        end
+      };
+
+      c_space* '..'
+      => {
+        emit(:tNL, nil, @newline_s, @newline_s + 1)
+        if @version < 27
+          fhold; fnext line_begin; fbreak;
+        else
+          emit(:tBDOT2)
+          fnext expr_beg; fbreak;
+        end
+      };
+
+      c_space* '...'
+      => {
+        emit(:tNL, nil, @newline_s, @newline_s + 1)
+        if @version < 27
+          fhold; fnext line_begin; fbreak;
+        else
+          emit(:tBDOT3)
+          fnext expr_beg; fbreak;
         end
       };
 
