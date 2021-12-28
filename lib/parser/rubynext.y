@@ -2124,23 +2124,13 @@ opt_block_args_tail:
                     {
                       result = [ *val[0], val[1] ]
                     }
-                | p_args_head tSTAR tIDENTIFIER
+                | p_args_head p_rest
                     {
-                      match_rest = @builder.match_rest(val[1], val[2])
-                      result = [ *val[0], match_rest ]
+                      result = [ *val[0], val[1] ]
                     }
-                | p_args_head tSTAR tIDENTIFIER tCOMMA p_args_post
+                | p_args_head p_rest tCOMMA p_args_post
                     {
-                      match_rest = @builder.match_rest(val[1], val[2])
-                      result = [ *val[0], match_rest, *val[4] ]
-                    }
-                | p_args_head tSTAR
-                    {
-                      result = [ *val[0], @builder.match_rest(val[1]) ]
-                    }
-                | p_args_head tSTAR tCOMMA p_args_post
-                    {
-                      result = [ *val[0], @builder.match_rest(val[1]), *val[3] ]
+                      result = [ *val[0], val[1], *val[3] ]
                     }
                 | p_args_tail
 
@@ -2178,6 +2168,11 @@ opt_block_args_tail:
           p_rest: tSTAR tIDENTIFIER
                     {
                       result = @builder.match_rest(val[0], val[1])
+                    }
+                | tSTAR nonlocal_var
+                    {
+                      non_lvar = @builder.accessible(val[1])
+                      result = @builder.match_rest(val[0], non_lvar)
                     }
                 | tSTAR
                     {
@@ -2302,6 +2297,11 @@ opt_block_args_tail:
       p_variable: tIDENTIFIER
                     {
                       result = @builder.assignable(@builder.match_var(val[0]))
+                    }
+                | nonlocal_var
+                    {
+                      non_lvar = @builder.accessible(val[0])
+                      result = @builder.assignable(@builder.match_var(non_lvar))
                     }
 
        p_var_ref: tCARET tIDENTIFIER
