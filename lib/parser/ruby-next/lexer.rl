@@ -96,7 +96,7 @@ class Next
   attr_accessor :static_env
   attr_accessor :force_utf32
 
-  attr_accessor :cond, :cmdarg, :in_kwarg, :context, :command_start
+  attr_accessor :cond, :cmdarg, :context, :command_start
 
   attr_accessor :tokens, :comments
 
@@ -1443,15 +1443,15 @@ class Next
       => { emit(:tLABEL, tok(@ts, @te - 2), @ts, @te - 1)
            fhold; fnext expr_labelarg; fbreak; };
 
-      '...' c_nl
+      '...'
       => {
-        if @version >= 31
-          emit(:tBDOT3, '...'.freeze, @ts, @te - 1)
-          emit(:tNL, "\n".freeze, @te - 1, @te)
+        if @version >= 31 && @context.in_argdef
+          emit(:tBDOT3, '...'.freeze)
+          # emit(:tNL, "\n".freeze, @te - 1, @te)
           fnext expr_end; fbreak;
         else
-          p -= 4;
-          fhold; fgoto expr_end;
+          p -= 3;
+          fgoto expr_end;
         end
       };
 
@@ -2077,7 +2077,7 @@ class Next
           else
             emit(:tBDOT3, '...'.freeze, @ts, dots_te)
 
-            if @version >= 31 && followed_by_nl && @context.in_def_open_args?
+            if @version >= 31 && followed_by_nl && @context.in_argdef
               emit(:tNL, @te - 1, @te)
               nl_emitted = true
             end
@@ -2162,7 +2162,7 @@ class Next
 
     w_newline
     => {
-      if @in_kwarg
+      if @context.in_kwarg
         fhold; fgoto expr_end;
       else
         fgoto line_begin;
