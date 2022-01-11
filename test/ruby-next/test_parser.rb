@@ -276,5 +276,20 @@ class TestParser < Minitest::Test
       %q{},
       SINCE_NEXT
     )
+
+    assert_parses_pattern_match(
+      s(:in_pattern,
+        s(:hash_pattern,
+          s(:pair,
+            s(:sym, :a),
+            s(:int, 1)),
+          s(:match_rest,
+              s(:match_var, s(:gvar, :$b)))),
+        nil,
+        s(:true)),
+        %q{in {a: 1, **$b} then true},
+      %q{},
+      SINCE_NEXT
+    )
   end
 end

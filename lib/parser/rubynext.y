@@ -2255,6 +2255,10 @@ opt_block_args_tail:
                     {
                       result = [ @builder.match_rest(val[0], val[1]) ]
                     }
+                | kwrest_mark nonlocal_var
+                    {
+                      result = [ @builder.match_rest(val[0], val[1]) ]
+                    }
                 | kwrest_mark
                     {
                       result = [ @builder.match_rest(val[0], nil) ]
