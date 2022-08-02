@@ -360,6 +360,7 @@ rule
                       @lexer.state = :expr_beg
                       @lexer.command_start = false
                       @pattern_variables.push
+                      @pattern_hash_keys.push
 
                       result = @context.in_kwarg
                       @context.in_kwarg = true
@@ -367,6 +368,7 @@ rule
                   p_top_expr_body
                     {
                       @pattern_variables.pop
+                      @pattern_hash_keys.pop
                       @context.in_kwarg = val[2]
                       result = @builder.match_pattern(val[0], val[1], val[3])
                     }
@@ -375,6 +377,7 @@ rule
                       @lexer.state = :expr_beg
                       @lexer.command_start = false
                       @pattern_variables.push
+                      @pattern_hash_keys.push
 
                       result = @context.in_kwarg
                       @context.in_kwarg = true
@@ -382,6 +385,7 @@ rule
                   p_top_expr_body
                     {
                       @pattern_variables.pop
+                      @pattern_hash_keys.pop
                       @context.in_kwarg = val[2]
                       result = @builder.match_pattern_p(val[0], val[1], val[3])
                     }
