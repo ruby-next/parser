@@ -7,8 +7,7 @@ services:
       context: ../
       dockerfile: .dockerdev/Dockerfile
       args:
-        RUBY_VERSION: '2.6'
-        BUNDLER_VERSION: '2.0.2'
+        RUBY_VERSION: '3.1'
     environment:
       - HISTFILE=/bundle/.bash_history
       - bundler_data:/bundle

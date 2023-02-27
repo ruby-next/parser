@@ -83,7 +83,7 @@ class Parser::Lexer
 class Next
 
   
-# line 86 "lib/parser/ruby-next/lexer-F0.rb"
+# line 83 "lib/parser/ruby-next/lexer-F0.rb"
 class << self
 	attr_accessor :_lex_actions
 	private :_lex_actions, :_lex_actions=
@@ -8598,7 +8598,7 @@ self.lex_en_inside_string = 129;
     @command_start = false
 
     
-# line 8601 "lib/parser/ruby-next/lexer-F0.rb"
+# line 8596 "lib/parser/ruby-next/lexer-F0.rb"
 begin # ragel flat
 	testEof = false
 	_slen, _trans, _keys, _inds, _acts, _nacts = nil
@@ -8633,7 +8633,7 @@ begin # ragel flat
 		begin
  @ts = p
 		end
-# line 8636 "lib/parser/ruby-next/lexer-F0.rb"
+# line 8631 "lib/parser/ruby-next/lexer-F0.rb"
 		end # from state action switch
 	end
 	if _trigger_goto
@@ -12652,7 +12652,7 @@ p = p - 1; begin  cmd_state = true; p = p - 1; 	begin
 
        end
 		end
-# line 12655 "lib/parser/ruby-next/lexer-F0.rb"
+# line 12650 "lib/parser/ruby-next/lexer-F0.rb"
 			end # action switch
 		end
 	end
@@ -12672,7 +12672,7 @@ p = p - 1; begin  cmd_state = true; p = p - 1; 	begin
 # line 1 "NONE"
 		begin
  @ts = nil;		end
-# line 12675 "lib/parser/ruby-next/lexer-F0.rb"
+# line 12670 "lib/parser/ruby-next/lexer-F0.rb"
 		end # to state action switch
 	end
 	if _trigger_goto

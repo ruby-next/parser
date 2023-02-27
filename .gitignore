@@ -40,4 +40,5 @@ lib/parser/ruby34.rb
 lib/parser/macruby.rb
 lib/parser/rubymotion.rb
 lib/parser/rubynext.rb
-lib/parser/ruby-next/lexer.rb
+lib/parser/ruby-next/lexer-F0.rb
+lib/parser/ruby-next/lexer-F1.rb

@@ -1,8 +1,6 @@
 ARG RUBY_VERSION
 FROM ruby:${RUBY_VERSION}-slim
 
-ARG BUNDLER_VERSION
-
 # Install system dependencies
 RUN apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get -yq dist-upgrade && \
   DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
@@ -27,8 +25,8 @@ ENV BUNDLE_APP_CONFIG=${BUNDLE_PATH} \
   BUNDLE_BIN=${BUNDLE_PATH}/bin
 ENV PATH /app/bin:${BUNDLE_BIN}:${PATH}
 
-# Upgrade RubyGems and install required Bundler version 
+# Upgrade RubyGems and install latest Bundler version
 RUN gem update --system && \
-    gem install bundler:${BUNDLER_VERSION}
+    gem install bundler
 
 WORKDIR /app

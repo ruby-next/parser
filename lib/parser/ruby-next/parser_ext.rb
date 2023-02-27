@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
-require_relative "lexer"
+
+if RUBY_ENGINE == 'truffleruby'
+  require_relative "lexer-F0"
+else
+  require_relative "lexer-F1"
+end
 require_relative "builder"
 require_relative "ast/processor"
 
