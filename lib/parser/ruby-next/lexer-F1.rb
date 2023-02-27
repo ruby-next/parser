@@ -83,7 +83,7 @@ class Parser::Lexer
 class Next
 
   
-# line 86 "lib/parser/ruby-next/lexer-F1.rb"
+# line 83 "lib/parser/ruby-next/lexer-F1.rb"
 class << self
 	attr_accessor :_lex_trans_keys
 	private :_lex_trans_keys, :_lex_trans_keys=
@@ -8463,7 +8463,7 @@ self.lex_en_inside_string = 129;
     @command_start = false
 
     
-# line 8466 "lib/parser/ruby-next/lexer-F1.rb"
+# line 8461 "lib/parser/ruby-next/lexer-F1.rb"
 begin
 	testEof = false
 	_slen, _trans, _keys, _inds, _acts, _nacts = nil
@@ -8491,7 +8491,7 @@ begin
 		begin
  @ts = p
 		end
-# line 8494 "lib/parser/ruby-next/lexer-F1.rb"
+# line 8489 "lib/parser/ruby-next/lexer-F1.rb"
 	end
 	_keys =  @cs << 1
 	_inds = _lex_index_offsets[ @cs]
@@ -14675,7 +14675,7 @@ p = p - 1; begin
 # line 1799 "lib/parser/ruby-next/lexer.rl"
 		begin
  @act = 115;		end
-# line 14678 "lib/parser/ruby-next/lexer-F1.rb"
+# line 14673 "lib/parser/ruby-next/lexer-F1.rb"
 	end
 	end
 	end
@@ -14685,7 +14685,7 @@ p = p - 1; begin
 # line 1 "NONE"
 		begin
  @ts = nil;		end
-# line 14688 "lib/parser/ruby-next/lexer-F1.rb"
+# line 14683 "lib/parser/ruby-next/lexer-F1.rb"
 	end
 
 	if  @cs == 0

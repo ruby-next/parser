@@ -4,7 +4,12 @@
 require 'helper'
 require 'complex'
 
-require 'parser/ruby-next/lexer'
+
+if RUBY_ENGINE == 'truffleruby'
+  require 'parser/ruby-next/lexer-F0'
+else
+  require 'parser/ruby-next/lexer-F1'
+end
 
 class TestLexerNext < Minitest::Test
   def setup_lexer(version)
