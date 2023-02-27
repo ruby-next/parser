@@ -1176,6 +1176,14 @@ rule
                     {
                       result = [ @builder.splat(val[0], val[1]) ]
                     }
+                | tSTAR
+                    {
+                      if !@static_env.declared_anonymous_restarg?
+                        diagnostic :error, :no_anonymous_restarg, nil, val[0]
+                      end
+
+                      result = [ @builder.forwarded_restarg(val[0]) ]
+                    }
                 | args tCOMMA arg_value
                     {
                       result = val[0] << val[2]
@@ -1183,6 +1191,14 @@ rule
                 | args tCOMMA tSTAR arg_value
                     {
                       result = val[0] << @builder.splat(val[2], val[3])
+                    }
+                | args tCOMMA tSTAR
+                    {
+                      if !@static_env.declared_anonymous_restarg?
+                        diagnostic :error, :no_anonymous_restarg, nil, val[2]
+                      end
+
+                      result = val[0] << @builder.forwarded_restarg(val[2])
                     }
 
         mrhs_arg: mrhs
@@ -2349,7 +2365,7 @@ opt_block_args_tail:
                       result = @builder.pin(val[0], non_lvar)
                     }
 
-      p_expr_ref: tCARET tLPAREN expr_value tRPAREN
+      p_expr_ref: tCARET tLPAREN expr_value rparen
                     {
                       expr = @builder.begin(val[1], val[2], val[3])
                       result = @builder.pin(val[0], expr)
@@ -2643,22 +2659,11 @@ regexp_contents: # nothing
                     {
                       result = @builder.ident(val[0])
                     }
-                | tIVAR
-                    {
-                      result = @builder.ivar(val[0])
-                    }
-                | tGVAR
-                    {
-                      result = @builder.gvar(val[0])
-                    }
                 | tCONSTANT
                     {
                       result = @builder.const(val[0])
                     }
-                | tCVAR
-                    {
-                      result = @builder.cvar(val[0])
-                    }
+                | nonlocal_var
 
 keyword_variable: kNIL
                     {
@@ -3006,6 +3011,8 @@ f_opt_paren_args: f_paren_args
                     }
                 | kwrest_mark
                     {
+                      @static_env.declare_anonymous_kwrestarg
+
                       result = [ @builder.kwrestarg(val[0]) ]
                     }
 
@@ -3051,6 +3058,8 @@ f_opt_paren_args: f_paren_args
                     }
                 | restarg_mark
                     {
+                      @static_env.declare_anonymous_restarg
+
                       result = [ @builder.restarg(val[0]) ]
                     }
 
@@ -3119,6 +3128,14 @@ f_opt_paren_args: f_paren_args
                     {
                       result = @builder.kwsplat(val[0], val[1])
                     }
+                | tDSTAR
+                    {
+                      if !@static_env.declared_anonymous_kwrestarg?
+                        diagnostic :error, :no_anonymous_kwrestarg, nil, val[0]
+                      end
+
+                      result = @builder.forwarded_kwrestarg(val[0])
+                    }
 
        operation: tIDENTIFIER | tCONSTANT | tFID
       operation2: operation | op
@@ -3146,7 +3163,7 @@ f_opt_paren_args: f_paren_args
                     {
                       result = val[1]
                     }
-         trailer:  | tNL | tCOMMA
+         trailer: opt_nl | tCOMMA
 
             term: tSEMI
                   {
@@ -3173,7 +3190,7 @@ require 'parser/ruby-next/parser_ext'
 prepend Parser::NextExt
 
   def version
-    32
+    33
   end
 
   def default_encoding
