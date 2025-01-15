@@ -2,12 +2,12 @@ version: '2.4'
 
 services:
   app:
-    image: parser-dev:1.0
+    image: parser-dev:2.0
     build:
       context: ../
       dockerfile: .dockerdev/Dockerfile
       args:
-        RUBY_VERSION: '3.1'
+        RUBY_VERSION: '3.3'
     environment:
       - HISTFILE=/bundle/.bash_history
       - bundler_data:/bundle
