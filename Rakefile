@@ -40,9 +40,7 @@ GENERATED_FILES = %w(lib/parser/lexer-F0.rb
                      lib/parser/ruby34.rb
                      lib/parser/macruby.rb
                      lib/parser/rubymotion.rb
-                     lib/parser/rubynext.rb
-                     lib/parser/ruby-next/lexer-F0.rb
-                     lib/parser/ruby-next/lexer-F1.rb)
+                     lib/parser/rubynext.rb)
 
 CLEAN.include(GENERATED_FILES)
 
@@ -165,13 +163,15 @@ file 'lib/parser/lexer-F0.rb' => 'lib/parser/lexer.rl' do |t|
   sh "ragel -F0 -R #{t.source} -o #{t.name}"
 end
 
-file 'lib/parser/ruby-next/lexer-F1.rb' => 'lib/parser/ruby-next/lexer.rl' do |t|
-  sh "ragel -F1 -R #{t.source} -o #{t.name}"
-end
+# Custom lexer generation for RubyNext
+#
+# file 'lib/parser/ruby-next/lexer-F1.rb' => 'lib/parser/ruby-next/lexer.rl' do |t|
+#   sh "ragel -F1 -R #{t.source} -o #{t.name}"
+# end
 
-file 'lib/parser/ruby-next/lexer-F0.rb' => 'lib/parser/ruby-next/lexer.rl' do |t|
-  sh "ragel -F0 -R #{t.source} -o #{t.name}"
-end
+# file 'lib/parser/ruby-next/lexer-F0.rb' => 'lib/parser/ruby-next/lexer.rl' do |t|
+#   sh "ragel -F0 -R #{t.source} -o #{t.name}"
+# end
 
 file 'lib/parser/lexer-strings.rb' => 'lib/parser/lexer-strings.rl' do |t|
   sh "ragel -F0 -R #{t.source} -o #{t.name}"

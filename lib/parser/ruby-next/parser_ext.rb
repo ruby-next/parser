@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 
-if RUBY_ENGINE == 'truffleruby'
-  require_relative "lexer-F0"
-else
-  require_relative "lexer-F1"
-end
+# if RUBY_ENGINE == 'truffleruby'
+#   require_relative "lexer-F0"
+# else
+#   require_relative "lexer-F1"
+# end
 require_relative "builder"
 require_relative "ast/processor"
 
@@ -18,11 +18,12 @@ module Parser
       # Extend builder
       @builder.singleton_class.prepend(Builders::Next)
 
-      # Use custom lexer
-      @lexer = Lexer::Next.new(version)
-      @lexer.diagnostics = @diagnostics
-      @lexer.static_env  = @static_env
-      @lexer.context     = @context
+      # Here is how to use a custom lexer
+      #
+      # @lexer = Lexer::Next.new(version)
+      # @lexer.diagnostics = @diagnostics
+      # @lexer.static_env  = @static_env
+      # @lexer.context     = @context
 
       # Reset the state again
       reset

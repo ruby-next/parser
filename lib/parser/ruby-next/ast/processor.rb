@@ -6,9 +6,11 @@ require "parser/ast/processor"
 module Parser
   module AST
     class Processor
-      def on_meth_ref(node)
-        node
-      end
+      # Define new node callbacks here
+      #
+      # def on_meth_ref(node)
+      #   node
+      # end
     end
   end
 end
