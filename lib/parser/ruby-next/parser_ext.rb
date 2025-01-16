@@ -9,6 +9,15 @@
 require_relative "builder"
 require_relative "ast/processor"
 
+require "parser/context"
+unless Parser::Context::FLAGS.include?(:cant_return)
+  Parser::Context::FLAGS << :cant_return
+
+  class Parser::Context
+    attr_accessor :cant_return
+  end
+end
+
 module Parser
   # Patch the base parser class to use custom builder and lexer
   module NextExt
