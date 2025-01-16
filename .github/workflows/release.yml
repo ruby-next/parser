@@ -20,6 +20,13 @@ jobs:
         with:
           ruby-version: 3.2
           bundler-cache: true
+      - name: Install Ragel
+        run: |
+          sudo apt-get update
+          sudo apt-get install ragel
+      - name: Generate parser files and run tests
+        run: |
+          bundle exec rake test
       - name: Configure RubyGems Credentials
         uses: rubygems/configure-rubygems-credentials@main
       - name: Publish to RubyGems
