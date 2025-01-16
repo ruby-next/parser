@@ -1,4 +1,4 @@
-[![Gem Version](https://badge.fury.io/rb/ruby-next-parser.svg)](https://rubygems.org/gems/ruby-next-parser) [![Build](https://github.com/ruby-next/parser/workflows/Build/badge.svg)](https://github.com/ruby-next/parser/actions)
+[![Gem Version](https://badge.fury.io/rb/ruby-next-parser.svg)](https://rubygems.org/gems/ruby-next-parser) [![Build](https://github.com/ruby-next/parser/workflows/Tests/badge.svg)](https://github.com/ruby-next/parser/actions)
 
 # Parser
 
