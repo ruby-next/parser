@@ -6989,7 +6989,7 @@ class TestParser < Minitest::Test
       %q{class << foo; return; end},
       %q{              ^^^^^^ location},
       SINCE_3_4)
-    
+
     assert_diagnoses(
       [:error, :invalid_return, {}],
       %q{class A; class << self; return; end; end},
@@ -9678,7 +9678,7 @@ class TestParser < Minitest::Test
       [:error, :reserved_for_numparam, { :name => '_1' }],
       %q{case 0; in _1; end},
       %q{           ^^ location},
-      SINCE_3_0)
+      SINCE_3_0 - %w(next))
 
     assert_diagnoses(
       [:error, :undefined_lvar, { :name => '_1' }],
